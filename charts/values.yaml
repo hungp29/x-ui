@@ -11,17 +11,17 @@ service:
 
 ingress:
   enabled: true
-  # MicroK8s ships the nginx ingress controller by default
   className: nginx
-  annotations: {}
-  host: ""   # leave empty to match all hosts; set to e.g. "ui.example.com" if needed
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-pro
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  host: momofamily.tplinkdns.com
   path: /
   pathType: Prefix
-  tls: []
-  # tls:
-  #   - secretName: x-ui-tls
-  #     hosts:
-  #       - ui.example.com
+  tls:
+    - secretName: x-ui-tls
+      hosts:
+        - momofamily.tplinkdns.com
 
 resources:
   requests:
