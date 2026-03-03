@@ -23,6 +23,9 @@ dist-ssr/
 *.sln
 *.sw?
 
+# Helm
+chart/*.tgz
+
 # Logs
 logs/
 *.log

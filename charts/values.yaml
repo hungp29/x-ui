@@ -1,0 +1,43 @@
+replicaCount: 1
+
+image:
+  repository: x-ui
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  # MicroK8s ships the nginx ingress controller by default
+  className: nginx
+  annotations: {}
+  host: ""   # leave empty to match all hosts; set to e.g. "ui.example.com" if needed
+  path: /
+  pathType: Prefix
+  tls: []
+  # tls:
+  #   - secretName: x-ui-tls
+  #     hosts:
+  #       - ui.example.com
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi
+
+# Number of old ReplicaSets to retain
+revisionHistoryLimit: 3
+
+podAnnotations: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
