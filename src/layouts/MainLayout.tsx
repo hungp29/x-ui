@@ -42,7 +42,12 @@ export default function MainLayout() {
         </Header>
 
         <SideSheet
-          title={<span style={{ fontWeight: 700, fontSize: 18 }}>x-ui</span>}
+          title={
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <img src="/favicon-32x32.png" width={24} height={24} alt="x-ui logo" />
+              <span style={{ fontWeight: 700, fontSize: 18 }}>x-ui</span>
+            </div>
+          }
           visible={drawerOpen}
           onCancel={() => setDrawerOpen(false)}
           placement="left"
@@ -81,9 +86,10 @@ export default function MainLayout() {
           onSelect={handleNavSelect}
           header={{
             logo: (
-              <span style={{ fontWeight: 700, fontSize: 18 }}>
-                {collapsed ? 'X' : 'x-ui'}
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, overflow: 'hidden' }}>
+                <img src="/favicon-32x32.png" width={28} height={28} alt="x-ui logo" style={{ flexShrink: 0 }} />
+                {!collapsed && <span style={{ fontWeight: 700, fontSize: 18, whiteSpace: 'nowrap' }}>x-ui</span>}
+              </div>
             ),
           }}
           footer={{ collapseButton: true }}
