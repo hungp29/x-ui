@@ -77,7 +77,9 @@ export default function WordPage() {
   const debouncedWord = useDebounce(inputValue.trim(), DEBOUNCE_MS)
 
   const dict = TAB_TO_DICT[activeTab]
-  const lookupState = useWordLookup(debouncedWord, dict)
+  const enState = useWordLookup(debouncedWord, 'english')
+  const enViState = useWordLookup(debouncedWord, 'english-vietnamese')
+  const lookupState = activeTab === 'en' ? enState : enViState
 
   useEffect(() => {
     setSearchParams(debouncedWord ? { q: debouncedWord } : {}, { replace: true })
@@ -104,8 +106,9 @@ export default function WordPage() {
   }
 
   const handleCopyContent = async () => {
-    if (lookupState.status !== 'success') return
-    const html = wordToHtml(lookupState.data, dict)
+    if (enState.status !== 'success') return
+    const enViEntry = enViState.status === 'success' ? enViState.data : null
+    const html = wordToHtml(enState.data, enViEntry)
     await navigator.clipboard.writeText(html)
     flashCopied('content')
   }
@@ -167,7 +170,7 @@ export default function WordPage() {
                       ? <IconTickCircle style={{ color: 'var(--semi-color-success)' }} />
                       : <IconCode />}
                     onClick={handleCopyContent}
-                    disabled={lookupState.status !== 'success'}
+                    disabled={enState.status !== 'success'}
                     aria-label={t('word.actions.copyContent')}
                   />
                 </span>

@@ -1,4 +1,4 @@
-import type { WordEntry, Dict } from '../services/wordApi'
+import type { WordEntry } from '../services/wordApi'
 
 function esc(str: string): string {
   return str
@@ -106,51 +106,53 @@ const STYLE = `
 </style>
 `.trim()
 
+function buildMeaningsSection(label: string, entry: WordEntry): string {
+  if (!entry.meanings.length) return ''
+  const items = entry.meanings
+    .map(m => {
+      const exHtml =
+        m.examples && m.examples.length > 0
+          ? `<ul class="examples">${m.examples.map(ex => `<li><em>${esc(ex)}</em></li>`).join('')}</ul>`
+          : ''
+      return `<li><p class="definition">${esc(m.definition)}</p>${exHtml}</li>`
+    })
+    .join('')
+  return `<div class="meanings"><p class="section-label">${esc(label)}</p><ol>${items}</ol></div>`
+}
+
 /**
- * Converts a WordEntry JSON into a self-contained, styled HTML string.
- * Suitable for pasting into Anki cards or any HTML-capable environment.
+ * Converts WordEntry JSON into a self-contained, styled HTML string.
+ * Always includes full English content. When enViEntry is provided,
+ * appends Vietnamese meanings (definitions + examples only).
  */
-export function wordToHtml(entry: WordEntry, dict: Dict): string {
-  const isEnVi = dict === 'english-vietnamese'
+export function wordToHtml(enEntry: WordEntry, enViEntry?: WordEntry | null): string {
   const sections: string[] = []
 
   // ── Header: word + part-of-speech ──────────────────────────────────────────
-  const posHtml = entry.part_of_speech.length
-    ? `<div class="word-pos">${entry.part_of_speech.map(p => `<span class="pos">${esc(p)}</span>`).join(' ')}</div>`
+  const posHtml = enEntry.part_of_speech.length
+    ? `<div class="word-pos">${enEntry.part_of_speech.map(p => `<span class="pos">${esc(p)}</span>`).join(' ')}</div>`
     : ''
-  sections.push(`<div class="word-header"><h2 class="word-title">${esc(entry.text)}</h2>${posHtml}</div>`)
+  sections.push(`<div class="word-header"><h2 class="word-title">${esc(enEntry.text)}</h2>${posHtml}</div>`)
 
-  // ── Phonetics ───────────────────────────────────────────────────────────────
-  const phoneticEntries = isEnVi
-    ? [{ label: 'Phonetic', value: entry.phonetic }]
-    : [
-        { label: 'UK', value: entry.phonetic_uk },
-        { label: 'US', value: entry.phonetic_us },
-      ]
+  // ── Phonetics (UK / US) ─────────────────────────────────────────────────────
+  const phoneticEntries = [
+    { label: 'UK', value: enEntry.phonetic_uk },
+    { label: 'US', value: enEntry.phonetic_us },
+  ].filter(e => e.value)
 
-  const visiblePhonetics = phoneticEntries.filter(e => e.value)
-  if (visiblePhonetics.length > 0) {
-    const phoneticsHtml = visiblePhonetics
+  if (phoneticEntries.length > 0) {
+    const phoneticsHtml = phoneticEntries
       .map(e => `<span class="phonetic"><span class="phonetic-label">${esc(e.label)}</span> <span class="phonetic-text">${esc(e.value)}</span></span>`)
       .join(' ')
     sections.push(`<div class="phonetics">${phoneticsHtml}</div>`)
   }
 
-  // ── Meanings ────────────────────────────────────────────────────────────────
-  if (entry.meanings.length > 0) {
-    const sectionLabel = isEnVi ? 'Vietnamese Translation' : 'English Definitions'
-    const meaningsHtml = entry.meanings
-      .map(m => {
-        const exHtml =
-          m.examples && m.examples.length > 0
-            ? `<ul class="examples">${m.examples.map(ex => `<li><em>${esc(ex)}</em></li>`).join('')}</ul>`
-            : ''
-        return `<li><p class="definition">${esc(m.definition)}</p>${exHtml}</li>`
-      })
-      .join('')
-    sections.push(
-      `<div class="meanings"><p class="section-label">${esc(sectionLabel)}</p><ol>${meaningsHtml}</ol></div>`,
-    )
+  // ── English definitions ─────────────────────────────────────────────────────
+  sections.push(buildMeaningsSection('English Definitions', enEntry))
+
+  // ── Vietnamese meanings (definitions + examples only) ───────────────────────
+  if (enViEntry) {
+    sections.push(buildMeaningsSection('Vietnamese Translation', enViEntry))
   }
 
   return `${STYLE}\n<div class="word-entry">${sections.join('')}</div>`
