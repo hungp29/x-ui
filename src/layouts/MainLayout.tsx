@@ -21,7 +21,7 @@ export default function MainLayout() {
     { itemKey: '/settings', text: t('nav.settings'), icon: <IconSetting /> },
   ]
 
-  const currentTitle = navItems.find((i) => i.itemKey === location.pathname)?.text ?? 'x-ui'
+  const currentTitle = navItems.find((i) => i.itemKey === location.pathname)?.text ?? 'MMFamily'
 
   const handleNavSelect = ({ itemKey }: { itemKey: string | number }) => {
     navigate(itemKey as string)
@@ -45,7 +45,7 @@ export default function MainLayout() {
           title={
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <img src="/favicon-32x32.png" width={24} height={24} alt="x-ui logo" />
-              <span style={{ fontWeight: 700, fontSize: 18 }}>x-ui</span>
+              <span style={{ fontWeight: 700, fontSize: 18 }}>MMFamily</span>
             </div>
           }
           visible={drawerOpen}
@@ -86,9 +86,9 @@ export default function MainLayout() {
           onSelect={handleNavSelect}
           header={{
             logo: (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, overflow: 'hidden' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, overflow: 'hidden', fontStyle: 'normal' }}>
                 <img src="/favicon-32x32.png" width={28} height={28} alt="x-ui logo" style={{ flexShrink: 0 }} />
-                {!collapsed && <span style={{ fontWeight: 700, fontSize: 18, whiteSpace: 'nowrap' }}>x-ui</span>}
+                {!collapsed && <span style={{ fontWeight: 700, fontSize: 18, whiteSpace: 'nowrap', fontStyle: 'normal' }}>MMFamily</span>}
               </div>
             ),
           }}
