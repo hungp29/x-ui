@@ -1,41 +1,34 @@
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Button, Input, Spin, Toast, Tooltip, Typography, Empty, Tabs, TabPane } from '@douyinfe/semi-ui'
-import { IconSearch, IconBookStroked, IconCopy, IconCode, IconImport } from '@douyinfe/semi-icons'
+import { Button, Input, Spin, Tooltip, Typography, Empty, Tabs, TabPane } from '@douyinfe/semi-ui'
+import { IconSearch, IconBookStroked, IconCopy, IconCode, IconImport, IconTickCircle } from '@douyinfe/semi-icons'
 import { WordCard } from '../components/Word'
-import { useWordLookup } from '../hooks/useWordLookup'
+import { useWordLookup, type WordLookupState } from '../hooks/useWordLookup'
 import { useDebounce } from '../hooks/useDebounce'
+import { wordToHtml } from '../utils/wordToHtml'
+import type { Dict } from '../services/wordApi'
 import styles from './WordPage.module.css'
 
 const { Title, Paragraph, Text } = Typography
 
 const DEBOUNCE_MS = 500
 type TabKey = 'en' | 'en-vi'
+type CopiedKey = 'word' | 'content' | null
 
-async function copyHtml(html: string) {
-  try {
-    await navigator.clipboard.write([
-      new ClipboardItem({
-        'text/html': new Blob([html], { type: 'text/html' }),
-        'text/plain': new Blob([html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()], { type: 'text/plain' }),
-      }),
-    ])
-  } catch {
-    // Fallback for browsers without ClipboardItem support
-    await navigator.clipboard.writeText(html)
-  }
+const TAB_TO_DICT: Record<TabKey, Dict> = {
+  'en': 'english',
+  'en-vi': 'english-vietnamese',
 }
 
 type WordResultProps = {
-  word: string
-  dict: 'english' | 'english-vietnamese'
+  state: WordLookupState
+  dict: Dict
   cardRef: React.Ref<HTMLDivElement>
 }
 
-function WordResult({ word, dict, cardRef }: WordResultProps) {
+function WordResult({ state, dict, cardRef }: WordResultProps) {
   const { t } = useTranslation()
-  const state = useWordLookup(word, dict)
 
   if (state.status === 'loading') {
     return (
@@ -75,11 +68,16 @@ export default function WordPage() {
   const { t } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
   const [activeTab, setActiveTab] = useState<TabKey>('en')
+  const [copied, setCopied] = useState<CopiedKey>(null)
+  const copiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const cardRef = useRef<HTMLDivElement>(null)
 
   const queryParam = searchParams.get('q') ?? ''
   const [inputValue, setInputValue] = useState(queryParam)
   const debouncedWord = useDebounce(inputValue.trim(), DEBOUNCE_MS)
+
+  const dict = TAB_TO_DICT[activeTab]
+  const lookupState = useWordLookup(debouncedWord, dict)
 
   useEffect(() => {
     setSearchParams(debouncedWord ? { q: debouncedWord } : {}, { replace: true })
@@ -89,18 +87,27 @@ export default function WordPage() {
     setInputValue(queryParam)
   }, [queryParam])
 
+  // Clear any pending timer on unmount
+  useEffect(() => () => { if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current) }, [])
+
+  const flashCopied = (key: CopiedKey) => {
+    if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current)
+    setCopied(key)
+    copiedTimerRef.current = setTimeout(() => setCopied(null), 2000)
+  }
+
   const handleInput = (value: string) => setInputValue(value.toLowerCase())
 
   const handleCopyWord = async () => {
     await navigator.clipboard.writeText(debouncedWord)
-    Toast.success({ content: t('word.actions.copied'), duration: 2 })
+    flashCopied('word')
   }
 
   const handleCopyContent = async () => {
-    const html = cardRef.current?.innerHTML
-    if (!html) return
-    await copyHtml(html)
-    Toast.success({ content: t('word.actions.copied'), duration: 2 })
+    if (lookupState.status !== 'success') return
+    const html = wordToHtml(lookupState.data, dict)
+    await navigator.clipboard.writeText(html)
+    flashCopied('content')
   }
 
   return (
@@ -139,31 +146,42 @@ export default function WordPage() {
             {/* Action buttons */}
             <div style={{ display: 'flex', gap: 4, flexShrink: 0, paddingBottom: 4 }}>
               <Tooltip content={t('word.actions.copyWord')}>
-                <Button
-                  size="small"
-                  theme="borderless"
-                  icon={<IconCopy />}
-                  onClick={handleCopyWord}
-                  aria-label={t('word.actions.copyWord')}
-                />
+                <span>
+                  <Button
+                    size="small"
+                    theme="borderless"
+                    icon={copied === 'word'
+                      ? <IconTickCircle style={{ color: 'var(--semi-color-success)' }} />
+                      : <IconCopy />}
+                    onClick={handleCopyWord}
+                    aria-label={t('word.actions.copyWord')}
+                  />
+                </span>
               </Tooltip>
               <Tooltip content={t('word.actions.copyContent')}>
-                <Button
-                  size="small"
-                  theme="borderless"
-                  icon={<IconCode />}
-                  onClick={handleCopyContent}
-                  aria-label={t('word.actions.copyContent')}
-                />
+                <span>
+                  <Button
+                    size="small"
+                    theme="borderless"
+                    icon={copied === 'content'
+                      ? <IconTickCircle style={{ color: 'var(--semi-color-success)' }} />
+                      : <IconCode />}
+                    onClick={handleCopyContent}
+                    disabled={lookupState.status !== 'success'}
+                    aria-label={t('word.actions.copyContent')}
+                  />
+                </span>
               </Tooltip>
               <Tooltip content={t('word.actions.ankiComingSoon')} position="topRight">
-                <Button
-                  size="small"
-                  theme="borderless"
-                  icon={<IconImport />}
-                  disabled
-                  aria-label={t('word.actions.importAnki')}
-                />
+                <span>
+                  <Button
+                    size="small"
+                    theme="borderless"
+                    icon={<IconImport />}
+                    disabled
+                    aria-label={t('word.actions.importAnki')}
+                  />
+                </span>
               </Tooltip>
             </div>
           </div>
@@ -173,9 +191,7 @@ export default function WordPage() {
       {/* ── Content ────────────────────────────────────────────── */}
       <div className={styles.content}>
         {debouncedWord ? (
-          activeTab === 'en'
-            ? <WordResult word={debouncedWord} dict="english" cardRef={cardRef} />
-            : <WordResult word={debouncedWord} dict="english-vietnamese" cardRef={cardRef} />
+          <WordResult state={lookupState} dict={dict} cardRef={cardRef} />
         ) : (
           <Empty
             image={<IconBookStroked style={{ fontSize: 64, color: 'var(--semi-color-text-2)' }} />}
