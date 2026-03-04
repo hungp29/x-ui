@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Layout, Nav, SideSheet, Button } from '@douyinfe/semi-ui'
 import { IconHome, IconApps, IconSetting, IconMenu } from '@douyinfe/semi-icons'
 import { useIsMobile } from '../hooks/useIsMobile'
+import { useSwipeDrawer } from '../hooks/useSwipeDrawer'
 
 const { Header, Sider, Content, Footer } = Layout
 
@@ -28,8 +29,15 @@ export default function MainLayout() {
     setDrawerOpen(false)
   }
 
+  const { onTouchStart, onTouchEnd } = useSwipeDrawer(
+    drawerOpen,
+    () => setDrawerOpen(true),
+    () => setDrawerOpen(false),
+  )
+
   if (isMobile) {
     return (
+      <div onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} style={{ display: 'contents' }}>
       <Layout className="mobile-layout">
         <Header className="mobile-header">
           <Button
@@ -71,6 +79,7 @@ export default function MainLayout() {
           x-ui © {new Date().getFullYear()}
         </Footer>
       </Layout>
+      </div>
     )
   }
 
