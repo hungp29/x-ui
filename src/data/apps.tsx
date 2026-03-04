@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import {
-  IconFile,
+  IconBookStroked,
   IconPieChart2Stroked,
   IconCalendar,
   IconMail,
@@ -14,7 +14,7 @@ import type { AppItem } from '../components/AppGrid'
 type AppKey = 'word' | 'finance' | 'calendar' | 'mail' | 'photos' | 'maps' | 'storage' | 'settings'
 
 const APP_ICONS: Record<AppKey, { icon: React.ReactNode; href: string }> = {
-  word:     { icon: <IconFile />,              href: '/apps/word' },
+  word:     { icon: <IconBookStroked />,              href: '/apps/word' },
   finance:  { icon: <IconPieChart2Stroked />,  href: '/apps/finance' },
   calendar: { icon: <IconCalendar />,          href: '/apps/calendar' },
   mail:     { icon: <IconMail />,              href: '/apps/mail' },
