@@ -1,89 +1,47 @@
-import { Typography } from '@douyinfe/semi-ui'
-import {
-  IconFile,
-  IconPieChart2Stroked,
-  IconCalendar,
-  IconMail,
-  IconCamera,
-  IconGlobe,
-  IconSetting,
-  IconCloud,
-} from '@douyinfe/semi-icons'
+import { useNavigate } from 'react-router-dom'
+import { Typography, Button } from '@douyinfe/semi-ui'
+import { IconApps } from '@douyinfe/semi-icons'
 import { AppGrid } from '../components/AppGrid'
-import type { AppItem } from '../components/AppGrid'
+import { useIsMobile } from '../hooks/useIsMobile'
+import { ALL_APPS } from '../data/apps'
 
 const { Title, Paragraph } = Typography
 
-const apps: AppItem[] = [
-  {
-    key: 'word',
-    name: 'Word',
-    icon: <IconFile />,
-    description: 'Documents',
-    href: '/apps/word',
-  },
-  {
-    key: 'finance',
-    name: 'Finance',
-    icon: <IconPieChart2Stroked />,
-    description: 'Budget & expenses',
-    href: '/apps/finance',
-  },
-  {
-    key: 'calendar',
-    name: 'Calendar',
-    icon: <IconCalendar />,
-    description: 'Schedule & events',
-    href: '/apps/calendar',
-  },
-  {
-    key: 'mail',
-    name: 'Mail',
-    icon: <IconMail />,
-    description: 'Inbox',
-    href: '/apps/mail',
-  },
-  {
-    key: 'photos',
-    name: 'Photos',
-    icon: <IconCamera />,
-    description: 'Media library',
-    href: '/apps/photos',
-  },
-  {
-    key: 'maps',
-    name: 'Maps',
-    icon: <IconGlobe />,
-    description: 'Directions & places',
-    href: '/apps/maps',
-  },
-  {
-    key: 'storage',
-    name: 'Storage',
-    icon: <IconCloud />,
-    description: 'Files & backups',
-    href: '/apps/storage',
-  },
-  {
-    key: 'settings',
-    name: 'Settings',
-    icon: <IconSetting />,
-    description: 'Preferences',
-    href: '/settings',
-  },
-]
+const DESKTOP_LIMIT = 8
+const MOBILE_LIMIT = 4
 
 export default function HomePage() {
+  const navigate = useNavigate()
+  const isMobile = useIsMobile()
+
+  const limit = isMobile ? MOBILE_LIMIT : DESKTOP_LIMIT
+  const featuredApps = ALL_APPS.slice(0, limit)
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div>
         <Title heading={3} style={{ marginBottom: 4 }}>
           Home
         </Title>
-        <Paragraph type="tertiary">Your applications</Paragraph>
+        <Paragraph type="tertiary">Welcome back</Paragraph>
       </div>
 
-      <AppGrid apps={apps} title="All Apps" />
+      <section>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+          <Title heading={6} style={{ margin: 0 }}>
+            Apps
+          </Title>
+          <Button
+            theme="borderless"
+            size="small"
+            icon={<IconApps />}
+            onClick={() => navigate('/apps')}
+          >
+            See all
+          </Button>
+        </div>
+        <AppGrid apps={featuredApps} />
+      </section>
     </div>
   )
 }

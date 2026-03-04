@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { Layout, Nav, SideSheet, Button } from '@douyinfe/semi-ui'
-import { IconHome, IconSetting, IconMenu } from '@douyinfe/semi-icons'
+import { IconHome, IconApps, IconSetting, IconMenu } from '@douyinfe/semi-icons'
 import { useIsMobile } from '../hooks/useIsMobile'
 
 const { Header, Sider, Content, Footer } = Layout
 
 const navItems = [
   { itemKey: '/', text: 'Home', icon: <IconHome /> },
+  { itemKey: '/apps', text: 'All Apps', icon: <IconApps /> },
   { itemKey: '/settings', text: 'Settings', icon: <IconSetting /> },
 ]
 
