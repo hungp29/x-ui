@@ -42,6 +42,13 @@ const en = {
     noResults: 'No results for "{{word}}"',
     emptyTitle: 'Search a word',
     emptyDescription: 'Type a word above to look it up in the Cambridge Dictionary',
+    actions: {
+      copyWord: 'Copy word',
+      copyContent: 'Copy content',
+      importAnki: 'Import to Anki',
+      ankiComingSoon: 'Anki import is not supported yet',
+      copied: 'Copied!',
+    },
   },
   apps: {
     word: { name: 'Dictionary', description: 'Dictionary lookup' },

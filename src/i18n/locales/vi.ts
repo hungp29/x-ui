@@ -42,6 +42,13 @@ const vi = {
     noResults: 'Không có kết quả cho "{{word}}"',
     emptyTitle: 'Tra cứu từ vựng',
     emptyDescription: 'Nhập một từ ở trên để tra cứu trong từ điển Cambridge',
+    actions: {
+      copyWord: 'Sao chép từ',
+      copyContent: 'Sao chép nội dung',
+      importAnki: 'Nhập vào Anki',
+      ankiComingSoon: 'Tính năng nhập Anki chưa được hỗ trợ',
+      copied: 'Đã sao chép!',
+    },
   },
   apps: {
     word: { name: 'Từ điển', description: 'Tra cứu từ điển' },
