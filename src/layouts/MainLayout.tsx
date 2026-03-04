@@ -1,23 +1,25 @@
 import { useState } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Layout, Nav, SideSheet, Button } from '@douyinfe/semi-ui'
 import { IconHome, IconApps, IconSetting, IconMenu } from '@douyinfe/semi-icons'
 import { useIsMobile } from '../hooks/useIsMobile'
 
 const { Header, Sider, Content, Footer } = Layout
 
-const navItems = [
-  { itemKey: '/', text: 'Home', icon: <IconHome /> },
-  { itemKey: '/apps', text: 'All Apps', icon: <IconApps /> },
-  { itemKey: '/settings', text: 'Settings', icon: <IconSetting /> },
-]
-
 export default function MainLayout() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const isMobile = useIsMobile()
   const [collapsed, setCollapsed] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
+
+  const navItems = [
+    { itemKey: '/', text: t('nav.home'), icon: <IconHome /> },
+    { itemKey: '/apps', text: t('nav.allApps'), icon: <IconApps /> },
+    { itemKey: '/settings', text: t('nav.settings'), icon: <IconSetting /> },
+  ]
 
   const currentTitle = navItems.find((i) => i.itemKey === location.pathname)?.text ?? 'x-ui'
 
