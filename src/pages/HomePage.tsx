@@ -20,7 +20,7 @@ export default function HomePage() {
   const featuredApps = allApps.slice(0, isMobile ? MOBILE_LIMIT : DESKTOP_LIMIT)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+    <div className="page-padding" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div>
         <Title heading={3} style={{ marginBottom: 4 }}>
           {t('home.title')}

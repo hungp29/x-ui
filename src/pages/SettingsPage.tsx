@@ -12,7 +12,7 @@ export default function SettingsPage() {
   const { preference, setPreference } = useTheme()
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24, maxWidth: 560 }}>
+    <div className="page-padding" style={{ display: 'flex', flexDirection: 'column', gap: 24, maxWidth: 560 }}>
       <div>
         <Title heading={3} style={{ marginBottom: 4 }}>
           {t('settings.title')}

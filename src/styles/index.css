@@ -35,7 +35,11 @@ code {
 .mobile-layout {
   display: flex;
   flex-direction: column;
-  min-height: 100dvh; /* dynamic viewport height for mobile browsers */
+  /* Fixed height so .main-content (flex: 1) gets a constrained height
+     and overflow-y: auto creates a real scroll container.
+     min-height would let it grow to fit content, causing window-level
+     scroll and breaking position: sticky inside .main-content. */
+  height: 100dvh;
   /* respect iOS safe areas (notch / home bar) */
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
@@ -62,14 +66,18 @@ code {
 }
 
 .main-content {
-  padding: 16px;
   background: var(--semi-color-bg-0);
   overflow-y: auto;
   flex: 1;
 }
 
+/* Padding lives on each page, not here, so sticky headers can be truly edge-to-edge */
+.page-padding {
+  padding: 16px;
+}
+
 @media (min-width: 768px) {
-  .main-content {
+  .page-padding {
     padding: 24px;
   }
 }
