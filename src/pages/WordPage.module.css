@@ -14,6 +14,11 @@
   }
 }
 
+/* Remove the built-in bottom border from Semi Tabs so the wrapper border-bottom is the only one */
+.tabs :global(.semi-tabs-bar) {
+  border-bottom: none !important;
+}
+
 .content {
   padding: 16px;
 }

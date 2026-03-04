@@ -125,18 +125,19 @@ export default function WordPage() {
         />
 
         {debouncedWord && (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8, borderBottom: '1px solid var(--semi-color-border)' }}>
             <Tabs
               activeKey={activeTab}
               onChange={(k) => setActiveTab(k as TabKey)}
               contentStyle={{ display: 'none' }}
+              className={styles.tabs}
             >
               <TabPane tab={t('word.tabEnglish')} itemKey="en" />
               <TabPane tab={t('word.tabEnglishVi')} itemKey="en-vi" />
             </Tabs>
 
             {/* Action buttons */}
-            <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+            <div style={{ display: 'flex', gap: 4, flexShrink: 0, paddingBottom: 4 }}>
               <Tooltip content={t('word.actions.copyWord')}>
                 <Button
                   size="small"
