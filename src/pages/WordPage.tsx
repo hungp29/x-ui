@@ -76,6 +76,11 @@ export default function WordPage() {
   const [inputValue, setInputValue] = useState(queryParam)
   const debouncedWord = useDebounce(inputValue.trim(), DEBOUNCE_MS)
 
+  useEffect(() => {
+    // Scroll the main content container back to top whenever the tab changes
+    document.querySelector('.main-content')?.scrollTo({ top: 0, behavior: 'instant' })
+  }, [activeTab])
+
   const dict = TAB_TO_DICT[activeTab]
   const enState = useWordLookup(debouncedWord, 'english')
   const enViState = useWordLookup(debouncedWord, 'english-vietnamese')
