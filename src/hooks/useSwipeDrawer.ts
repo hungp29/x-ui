@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 
 /** px from the left screen edge that counts as the "open" trigger zone */
 const EDGE_ZONE = 32
@@ -8,39 +8,70 @@ const MIN_SWIPE_X = 60
 const MAX_SWIPE_Y = 80
 
 /**
- * Returns touch event handlers that open the drawer when the user swipes
- * right from the left edge, and close it when they swipe left.
+ * Attaches native (non-passive) touch listeners to the document so we can
+ * call preventDefault() on the edge-swipe, which stops the browser from
+ * treating it as a "back" navigation gesture at the same time.
  */
 export function useSwipeDrawer(
   isOpen: boolean,
   onOpen: () => void,
   onClose: () => void,
 ) {
-  const startX = useRef(0)
-  const startY = useRef(0)
+  // Keep stable refs so the listeners don't need to be re-registered on every render
+  const isOpenRef = useRef(isOpen)
+  const onOpenRef = useRef(onOpen)
+  const onCloseRef = useRef(onClose)
 
-  const onTouchStart = useCallback((e: React.TouchEvent) => {
-    startX.current = e.touches[0].clientX
-    startY.current = e.touches[0].clientY
-  }, [])
+  useEffect(() => { isOpenRef.current = isOpen }, [isOpen])
+  useEffect(() => { onOpenRef.current = onOpen }, [onOpen])
+  useEffect(() => { onCloseRef.current = onClose }, [onClose])
 
-  const onTouchEnd = useCallback(
-    (e: React.TouchEvent) => {
+  useEffect(() => {
+    const startX = { current: 0 }
+    const startY = { current: 0 }
+    const tracking = { current: false }
+
+    const handleTouchStart = (e: TouchEvent) => {
+      startX.current = e.touches[0].clientX
+      startY.current = e.touches[0].clientY
+
+      if (!isOpenRef.current && startX.current <= EDGE_ZONE) {
+        // Starting in the edge zone while closed — claim this touch immediately
+        // so the browser doesn't interpret the rightward drag as "go back"
+        tracking.current = true
+        e.preventDefault()
+      } else if (isOpenRef.current) {
+        tracking.current = true
+      } else {
+        tracking.current = false
+      }
+    }
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (!tracking.current) return
+      tracking.current = false
+
       const dx = e.changedTouches[0].clientX - startX.current
       const dy = Math.abs(e.changedTouches[0].clientY - startY.current)
 
-      // Treat as a scroll if vertical movement dominates
+      // Ignore if movement is more vertical than horizontal (scrolling)
       if (dy > MAX_SWIPE_Y || dy > Math.abs(dx)) return
       if (Math.abs(dx) < MIN_SWIPE_X) return
 
-      if (!isOpen && dx > 0 && startX.current <= EDGE_ZONE) {
-        onOpen()
-      } else if (isOpen && dx < 0) {
-        onClose()
+      if (!isOpenRef.current && dx > 0 && startX.current <= EDGE_ZONE) {
+        onOpenRef.current()
+      } else if (isOpenRef.current && dx < 0) {
+        onCloseRef.current()
       }
-    },
-    [isOpen, onOpen, onClose],
-  )
+    }
 
-  return { onTouchStart, onTouchEnd }
+    // passive: false is required to allow preventDefault() on touchstart
+    document.addEventListener('touchstart', handleTouchStart, { passive: false })
+    document.addEventListener('touchend', handleTouchEnd)
+
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart)
+      document.removeEventListener('touchend', handleTouchEnd)
+    }
+  }, []) // empty deps — stable refs handle updates
 }

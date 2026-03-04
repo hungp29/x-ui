@@ -29,7 +29,7 @@ export default function MainLayout() {
     setDrawerOpen(false)
   }
 
-  const { onTouchStart, onTouchEnd } = useSwipeDrawer(
+  useSwipeDrawer(
     drawerOpen,
     () => setDrawerOpen(true),
     () => setDrawerOpen(false),
@@ -37,7 +37,6 @@ export default function MainLayout() {
 
   if (isMobile) {
     return (
-      <div onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} style={{ display: 'contents' }}>
       <Layout className="mobile-layout">
         <Header className="mobile-header">
           <Button
@@ -79,7 +78,6 @@ export default function MainLayout() {
           x-ui © {new Date().getFullYear()}
         </Footer>
       </Layout>
-      </div>
     )
   }
 
