@@ -17,7 +17,7 @@ export type WordEntry = {
   meanings: Meaning[]
 }
 
-const BASE_URL = import.meta.env.VITE_WORD_API_BASE_URL
+const BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 export class WordNotFoundError extends Error {
   constructor(word: string) {
@@ -27,7 +27,7 @@ export class WordNotFoundError extends Error {
 }
 
 export async function fetchWord(word: string, dict: Dict): Promise<WordEntry> {
-  const url = `${BASE_URL}/${encodeURIComponent(word.trim())}?dict=${dict}`
+  const url = `${BASE_URL}/v1/word/${encodeURIComponent(word.trim())}?dict=${dict}`
   const res = await fetch(url)
 
   if (res.status === 404) throw new WordNotFoundError(word)
